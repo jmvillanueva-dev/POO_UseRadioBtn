@@ -1,6 +1,7 @@
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -15,6 +16,7 @@ public class RegisterForm {
     private JRadioButton btnTerminos;
     private JTextField txtGenero;
     private JRadioButton btnGenero;
+    private JButton regresarButton;
 
     public RegisterForm(JFrame frame) {
         // Inicialmente, deshabilitamos el botón de registro
@@ -36,6 +38,7 @@ public class RegisterForm {
             public void changedUpdate(DocumentEvent e) {
                 checkFields();
             }
+
         });
 
         txtAdress.getDocument().addDocumentListener(new DocumentListener() {
@@ -53,9 +56,28 @@ public class RegisterForm {
             public void changedUpdate(DocumentEvent e) {
                 checkFields();
             }
+
         });
 
         txtTelefono.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                checkFields();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                checkFields();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                checkFields();
+            }
+
+        });
+
+        txtGenero.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 checkFields();
@@ -87,6 +109,7 @@ public class RegisterForm {
             public void changedUpdate(DocumentEvent e) {
                 checkFields();
             }
+
         });
 
         pswContra.getDocument().addDocumentListener(new DocumentListener() {
@@ -104,12 +127,13 @@ public class RegisterForm {
             public void changedUpdate(DocumentEvent e) {
                 checkFields();
             }
+
         });
 
+        // Verificar que el campo de termino sea seleccionado
         btnTerminos.addItemListener(e -> checkFields());
 
-
-
+        //Deshabilitar el campo Genero si el botón está seleccionado.
         btnGenero.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -119,19 +143,47 @@ public class RegisterForm {
                 } else {
                     txtGenero.setEnabled(true);
                 }
+                checkFields(); // Verifica los campos después del cambio
+            }
+        });
+
+        regresarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(registerPanel);
+                if (currentFrame != null) {
+                    currentFrame.dispose();
+                }
+
+                JFrame frame = new JFrame("Login | Radio Button Use");
+                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                frame.setSize(600, 600);
+                frame.setPreferredSize(new Dimension(600, 600));
+                frame.setContentPane(new LoginForm(frame).loginPanel);
+                frame.pack();
+                frame.setLocationRelativeTo(null);
+                frame.setVisible(true);
             }
         });
     }
 
-    // Método para verificar si todos los campos están completos
+    // Metodo para verificar si todos los campos están completos
     private void checkFields() {
         String nombre = txtName.getText();
         String direccion = txtAdress.getText();
         String telefono = txtTelefono.getText();
         String correo = txtEmail.getText();
-        String contraseña = new String(pswContra.getPassword());
+        String contrasena = new String(pswContra.getPassword());
+        String genero = txtGenero.getText();
 
-        // Habilitar el botón solo si todos los campos están llenos
-        btnRegister.setEnabled(!nombre.isEmpty() && !direccion.isEmpty() && !telefono.isEmpty() && !correo.isEmpty() && !contraseña.isEmpty() && btnTerminos.isSelected());
+        // Verificar si el género es válido
+        boolean generoValido = btnGenero.isSelected() || !genero.isEmpty();
+
+        // Habilitar el botón solo si todos los campos están completos y cumple con las reglas
+        btnRegister.setEnabled(
+                !nombre.isEmpty() && !direccion.isEmpty() && !telefono.isEmpty() && !correo.isEmpty() && !contrasena.isEmpty()
+                        && btnTerminos.isSelected() && generoValido
+        );
     }
+
 }
